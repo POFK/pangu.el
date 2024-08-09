@@ -19,14 +19,20 @@
 ;;
 ;;; Code:
 
+(require 'request)
+
 (provide 'pangu)
 
 ;; set it in config.el
 ;; (setq pangu-conn (pangu-make-conn "localhost" 29001))
 
-(defvar pangu-conn (pangu-make-conn "localhost" 29001))
-(setq pangu-conn (pangu-make-conn "localhost" 29001))
+                                        ;(setq pangu-conn (pangu-make-conn "localhost" 29001))
 
+                                        ;(defvar pangu-conn '())
+
+                                        ;(defvar pangu-conn (pangu-make-conn "localhost" 29001))
+
+;;;###autoload
 (defun pangu-make-conn (host port)
   ;; construct function for pangu object
   `(
@@ -38,6 +44,7 @@
     (current-id . "")
     (lastbuffer . nil) ; last buffer
     ))
+
 
 (defun pangu-host (p)
   (cdr (assoc 'host p)))
@@ -145,10 +152,10 @@
 
 (defun pangu-buffer-get-region-by-point ()
   (if
-      (not (string= (pangu-buf-name pangu-conn) (buffer-name (current-buffer))))
+      (not (string= (pangu-buffer-name pangu-conn) (buffer-name (current-buffer))))
       (error (format
-              "Not be called in buffer %s"
-              (pangu-buf-name pangu-conn)))
+              "Must be called in buffer %s"
+              (pangu-buffer-name pangu-conn)))
     (with-current-buffer (pangu-buffer pangu-conn)
       (let* (
              (prefix "#>>> \\(.+\\)\n")
@@ -175,8 +182,6 @@
 (defun pangu-check-in-buffer (buf)
   (string= (buffer-name buf) (buffer-name (current-buffer))))
 
-
-(pangu-buffer-get-region-by-point)
 
 ;; ---------------------
 ;; key map and minor mode for interactive command
@@ -209,8 +214,7 @@
 (defun pangu-code-accept ()
   (interactive)
   (when (not (pangu-check-in-buffer (pangu-buffer pangu-conn)))
-    (error (format "Must be called in buffer %s" (pangu-buf-name pangu-conn))))
-
+    (error (format "Must be called in buffer %s" (pangu-buffer-name pangu-conn))))
   (let ((beg-end (pangu-buffer-get-region-by-point))
         (id (pangu-current-id pangu-conn)))
     (pangu-workspace-edit-mode 1)
