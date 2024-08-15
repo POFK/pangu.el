@@ -319,7 +319,7 @@
     (let* ((_ (re-search-backward "# <Task \\([0-9]+\\)>"))
            (beg (match-beginning 1))
            (end (match-end 1)))
-      (string-to-number (buffer-substring beg end)))))
+      (string-to-number (buffer-substring-no-properties beg end)))))
 
 (defun pangu--extract-chat-history ()
   "Extract the number from the first match of '<Task N>' in the backward search."
