@@ -272,7 +272,7 @@
           (get-buffer-create buf)
           (with-current-buffer buf
             (progn
-              (insert "\n---\n# <Task 1>\n")
+              (insert "\n---\n# <Task 1>\n\nUser:\n")
               (markdown-mode)
               (pangu-chat-mode 1)))
           (get-buffer buf))
@@ -289,8 +289,8 @@
 (defun pangu-chat-request-callback (p response)
   (with-current-buffer (pangu-chat-buffer p)
     (goto-char (point-max))
-    (let ((msg (txmao/--get-prop (request-response-dataa response) 'msg)))
-      (insert (format "\nAssistant:\n\n%s\n\nUser:\n\n" msg))
+    (let ((msg (txmao/--get-prop (request-response-data response) 'msg)))
+      (insert (format "\n\nAssistant:\n\n%s\n\nUser:\n\n" msg))
       )))
 
 (defun pangu-chat-request (p question)
@@ -301,7 +301,7 @@
     :parser 'json-read
     :complete (cl-function
                (lambda (&key response &allow-other-keys)
-                 (pangu-chat-request-callback p response))))
+                 (pangu-chat-request-callback pangu-conn response))))
   )
 
 
@@ -359,8 +359,7 @@
 
 (global-set-key (kbd "M-p c") 'pangu-chat-window-open)
 
-(global-set-key (kbd "M-p n") 'pangu-chat-new)
-
+                                        ;(global-set-key (kbd "M-p n") 'pangu-chat-new)
                                         ;(global-set-key (kbd "M-p c") 'pangu-chat-call)
 
 
