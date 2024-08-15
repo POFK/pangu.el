@@ -337,7 +337,7 @@
   (select-window (pangu-chat-window pangu-conn))
   )
 
-(defun pangu-chat-ndw ()
+(defun pangu-chat-new ()
   (interactive)
   (with-current-buffer (pangu-chat-buffer pangu-conn)
     (let* ((task-num (+ 1 (pangu--extract-task-number pangu-conn)))
@@ -358,14 +358,17 @@
 
 (define-minor-mode pangu-chat-mode
   "Get your foos in the right places."
-  :lighter " PanguAI"
+  :lighter " PanguAI-Chat"
   :keymap (let ((map (make-sparse-keymap)))
-            (global-set-key (kbd "M-p c n") 'pangu-chat-new)
-            (global-set-key (kbd "M-p c n") 'pangu-chat-call)
+            (global-set-key (kbd "M-p n") 'pangu-chat-new)
+            (global-set-key (kbd "M-p c") 'pangu-chat-call)
             map))
 
-(global-set-key (kbd "M-p c w") 'pangu-chat-window-open)
+(global-set-key (kbd "M-p c") 'pangu-chat-window-open)
 
+(global-set-key (kbd "M-p n") 'pangu-chat-new)
+
+(global-set-key (kbd "M-p c") 'pangu-chat-call)
 
 
 ;;; pangu.el ends here
