@@ -286,13 +286,6 @@
                       new-w))
           (w))))
 
-(defun pangu-chat-window (p)
-  (let ((w (get-buffer-window (pangu-chat-buffer p))))
-    (cond ((null w) (let ((new-w (split-window-right)))
-                      (set-window-buffer new-w (pangu-chat-buffer p))
-                      new-w))
-          (w))))
-
 (defun pangu-chat-request-callback (p response)
   (with-current-buffer (pangu-chat-buffer p)
     (goto-char (point-max))
@@ -321,7 +314,7 @@
            (end (match-end 1)))
       (string-to-number (buffer-substring-no-properties beg end)))))
 
-(defun pangu--extract-chat-history ()
+(defun pangu--extract-chat-history (p)
   "Extract the number from the first match of '<Task N>' in the backward search."
   (with-current-buffer (pangu-chat-buffer p)
     (goto-char (point-max))
@@ -368,7 +361,7 @@
 
 (global-set-key (kbd "M-p n") 'pangu-chat-new)
 
-(global-set-key (kbd "M-p c") 'pangu-chat-call)
+                                        ;(global-set-key (kbd "M-p c") 'pangu-chat-call)
 
 
 ;;; pangu.el ends here
