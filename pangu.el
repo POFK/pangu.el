@@ -40,11 +40,18 @@
     (port . ,port)
     (msg . nil)
     (buf-name . "*ai-workspace*")
+    (chat-buffer . "*ai-chat*")
     (saved-buffer . nil)
     (current-id . "")
     (lastbuffer . nil) ; last buffer
     ))
 
+(defun txmao/--get-prop (data prop)
+  "usage:
+     (txmao/--get-prop (txmao/make-http-header) 'tag)"
+  (condition-case err
+      (cdr (assoc prop data))
+    (error nil)))
 
 (defun pangu-host (p)
   (cdr (assoc 'host p)))
@@ -251,5 +258,114 @@
 
 (global-set-key (kbd "M-p w") 'pangu-window-open)
 (global-set-key (kbd "M-p p") 'pangu-coder-py)
+
+;; for chat mode
+
+(defun pangu-chat-buffer-name (p)
+  (txmao/--get-prop p 'chat-buffer))
+
+
+(defun pangu-chat-buffer (p)
+  (let ((buf (pangu-chat-buffer-name p)))
+    (if (null (get-buffer buf))
+        (progn
+          (get-buffer-create buf)
+          (with-current-buffer buf
+            (progn
+              (insert "\n---\n# <Task 1>\n")
+              (markdown-mode)
+              (pangu-chat-mode 1)))
+          (get-buffer buf))
+      (get-buffer buf))))
+
+
+(defun pangu-chat-window (p)
+  (let ((w (get-buffer-window (pangu-chat-buffer p))))
+    (cond ((null w) (let ((new-w (split-window-right)))
+                      (set-window-buffer new-w (pangu-chat-buffer p))
+                      new-w))
+          (w))))
+
+(defun pangu-chat-window (p)
+  (let ((w (get-buffer-window (pangu-chat-buffer p))))
+    (cond ((null w) (let ((new-w (split-window-right)))
+                      (set-window-buffer new-w (pangu-chat-buffer p))
+                      new-w))
+          (w))))
+
+(defun pangu-chat-request-callback (p response)
+  (with-current-buffer (pangu-chat-buffer p)
+    (goto-char (point-max))
+    (let ((msg (txmao/--get-prop (request-response-dataa response) 'msg)))
+      (insert (format "\nAssistant:\n\n%s\n\nUser:\n\n" msg))
+      )))
+
+(defun pangu-chat-request (p question)
+  (request (format "http://%s:%s/chat" (pangu-host p) (pangu-port p))
+    :type "POST"
+    :data (json-encode `(("id" . "") ("msg" . ,question)))
+    :headers '(("Content-Type" . "application/json"))
+    :parser 'json-read
+    :complete (cl-function
+               (lambda (&key response &allow-other-keys)
+                 (pangu-chat-request-callback p response))))
+  )
+
+
+(defun pangu--extract-task-number (p)
+  "Extract the number from the first match of '<Task N>' in the backward search."
+  (with-current-buffer (pangu-chat-buffer p)
+    (goto-char (point-max))
+    (let* ((_ (re-search-backward "# <Task \\([0-9]+\\)>"))
+           (beg (match-beginning 1))
+           (end (match-end 1)))
+      (string-to-number (buffer-substring beg end)))))
+
+(defun pangu--extract-chat-history ()
+  "Extract the number from the first match of '<Task N>' in the backward search."
+  (with-current-buffer (pangu-chat-buffer p)
+    (goto-char (point-max))
+    (let* ((_ (re-search-backward "# <Task \\([0-9]+\\)>\n"))
+           (end (match-end 0)))
+      (buffer-substring-no-properties end (point-max)))))
+
+;; command map
+
+(defun pangu-chat-window-open ()
+  (interactive)
+  (pangu-chat-window pangu-conn)
+  (select-window (pangu-chat-window pangu-conn))
+  )
+
+(defun pangu-chat-ndw ()
+  (interactive)
+  (with-current-buffer (pangu-chat-buffer pangu-conn)
+    (let* ((task-num (+ 1 (pangu--extract-task-number pangu-conn)))
+           (header (format "\n---\n# <Task %d>\n" task-num)))
+      (goto-char (point-max))
+      (insert header)
+      (insert "\nUser:\n")
+      )))
+
+(defun pangu-chat-call ()
+  (interactive)
+  (with-current-buffer (pangu-chat-buffer pangu-conn)
+    (goto-char (point-max))
+    (let ((history (pangu--extract-chat-history pangu-conn))
+          (_ (goto-char (point-max))))
+      (pangu-chat-request pangu-conn history))))
+
+
+(define-minor-mode pangu-chat-mode
+  "Get your foos in the right places."
+  :lighter " PanguAI"
+  :keymap (let ((map (make-sparse-keymap)))
+            (global-set-key (kbd "M-p c n") 'pangu-chat-new)
+            (global-set-key (kbd "M-p c n") 'pangu-chat-call)
+            map))
+
+(global-set-key (kbd "M-p c w") 'pangu-chat-window-open)
+
+
 
 ;;; pangu.el ends here
