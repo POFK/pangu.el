@@ -274,7 +274,7 @@
             (progn
               (insert "\n---\n# <Task 1>\n\nUser:\n")
               (markdown-mode)
-                                        ;             (pangu-chat-mode 1)
+              (pangu-chat-mode 1)
               ))
           (get-buffer buf))
       (get-buffer buf))))
@@ -354,13 +354,12 @@
   "Get your foos in the right places."
   :lighter " PanguAI-Chat"
   :keymap (let ((map (make-sparse-keymap)))
-            (global-set-key (kbd "M-p n") 'pangu-chat-new)
-            (global-set-key (kbd "M-p c") 'pangu-chat-call)
+            (global-set-key (kbd "C-c i") 'pangu-chat-new)
+            (global-set-key (kbd "C-c j") 'pangu-chat-call)
             map))
 
 (global-set-key (kbd "M-p c") 'pangu-chat-window-open)
-(global-set-key (kbd "M-p n") 'pangu-chat-new)
-(global-set-key (kbd "M-p r") 'pangu-chat-call)
+
 
 
 ;;; pangu.el ends here
