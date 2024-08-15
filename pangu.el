@@ -274,7 +274,8 @@
             (progn
               (insert "\n---\n# <Task 1>\n\nUser:\n")
               (markdown-mode)
-              (pangu-chat-mode 1)))
+                                        ;             (pangu-chat-mode 1)
+              ))
           (get-buffer buf))
       (get-buffer buf))))
 
@@ -358,9 +359,8 @@
             map))
 
 (global-set-key (kbd "M-p c") 'pangu-chat-window-open)
-
-                                        ;(global-set-key (kbd "M-p n") 'pangu-chat-new)
-                                        ;(global-set-key (kbd "M-p c") 'pangu-chat-call)
+(global-set-key (kbd "M-p n") 'pangu-chat-new)
+(global-set-key (kbd "M-p r") 'pangu-chat-call)
 
 
 ;;; pangu.el ends here
