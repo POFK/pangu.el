@@ -25,6 +25,7 @@
 
 ;;(defvar atom-conn (atom-make-conn "localhost" 38000))
 
+;;;###autoload
 (defun atom-make-conn (host port)
   ;; construct function for pangu object
   `(
@@ -173,6 +174,6 @@
 
 
 
-
 (provide 'atom)
+
 ;;; atom.el ends here
